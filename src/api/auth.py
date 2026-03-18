@@ -16,9 +16,9 @@ router = APIRouter(prefix='/auth', tags=['Авторизация и Аутент
 
 
 @router.post('/register')
-async def register_user(user_data: UserRequestAdd, db: DBDep):
+async def register_user(user_data: UserRequestAdd, db: DBDep, is_owner: bool = False):
     try:
-        await AuthService(db).register_user(user_data)
+        await AuthService(db).register_user(user_data, is_owner)
     except ObjectAlreadyExistsException:
         raise HTTPException(status_code=409, detail='Данный пользователь уже зарегистрирован')
 

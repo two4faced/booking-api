@@ -15,6 +15,7 @@ class UserRequestAdd(BaseModel):
 class UserAdd(BaseModel):
     name: str = Field(min_length=3)
     email: EmailStr
+    role: str = Field(default='USER')
     hashed_password: str
 
 
@@ -22,6 +23,7 @@ class User(BaseModel):
     id: int
     name: str = Field(min_length=3)
     email: EmailStr
+    role: str
 
     model_config = ConfigDict(from_attributes=True)
 

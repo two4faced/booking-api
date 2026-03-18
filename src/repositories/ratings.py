@@ -62,4 +62,3 @@ class RatingsRepository(BaseRepository):
                     f'Незнакомая ошибка, входные данные: {data}, тип ошибки: {exc.orig.__cause__}'
                 )
                 raise exc
-

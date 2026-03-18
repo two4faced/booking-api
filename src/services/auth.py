@@ -19,13 +19,16 @@ from src.services.base import BaseService
 class AuthService(BaseService):
     pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
-    async def register_user(self, user_data: UserRequestAdd):
+    async def register_user(self, user_data: UserRequestAdd, is_owner: bool):
         hashed_password = self.hash_password(user_data.password)
         new_user_data = UserAdd(
             name=user_data.name,
             email=user_data.email,
             hashed_password=hashed_password,
         )
+
+        if is_owner:
+            new_user_data.role = 'HOTEL_OWNER'
 
         await self.db.users.add(new_user_data)
         await self.db.commit()
