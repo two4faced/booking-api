@@ -9,6 +9,7 @@ from src.database import Base
 if typing.TYPE_CHECKING:
     from src.models import RatingsORM
 
+
 class UsersORM(Base):
     __tablename__ = 'users'
 

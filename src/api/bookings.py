@@ -7,6 +7,8 @@ from src.exceptions import (
     RoomNotFoundException,
     RoomNotFoundHTTPException,
     DateFromLaterThenOrEQDateToException,
+    HotelNotFoundException,
+    HotelNotFoundHTTPException,
 )
 from src.schemas.bookings import BookingsAddRequest
 from src.services.bookings import BookingsService
@@ -35,6 +37,8 @@ async def book_room(user_id: UserIdDep, booking_data: BookingsAddRequest, db: DB
         raise AllRoomsBookedHTTPException
     except RoomNotFoundException:
         raise RoomNotFoundHTTPException
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
     except DateFromLaterThenOrEQDateToException as exc:
         raise HTTPException(status_code=400, detail=exc.detail)
 

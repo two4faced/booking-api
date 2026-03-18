@@ -23,7 +23,6 @@ def upgrade() -> None:
     op.create_unique_constraint('_user_hotel_ids_uc', 'ratings', ['user_id', 'hotel_id'])
 
 
-
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_constraint('_user_hotel_ids_uc', 'ratings', type_='unique')

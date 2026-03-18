@@ -5,8 +5,11 @@ from src.exceptions import (
     HotelNotFoundException,
     HotelNotFoundHTTPException,
     IncorrectStringValueException,
-    StringIsToLongHTTPException, ObjectAlreadyExistsException, RatingIsAlreadyPostedHTTPException,
-    NothingChangedHTTPException, NothingChangedException,
+    StringIsToLongHTTPException,
+    ObjectAlreadyExistsException,
+    RatingIsAlreadyPostedHTTPException,
+    NothingChangedHTTPException,
+    NothingChangedException,
 )
 from src.schemas.ratings import RatingRequestAdd, RatingPatch
 from src.services.ratings import RatingService
@@ -34,9 +37,7 @@ async def add_rating(data: RatingRequestAdd, hotel_id: int, user_id: UserIdDep, 
 
 
 @router.patch('/{hotel_id}')
-async def patch_rating(
-        data: RatingPatch, hotel_id: int, user_id: UserIdDep, db: DBDep
-    ):
+async def patch_rating(data: RatingPatch, hotel_id: int, user_id: UserIdDep, db: DBDep):
     try:
         await RatingService(db).patch_rating(rating_data=data, hotel_id=hotel_id, user_id=user_id)
     except NothingChangedException:

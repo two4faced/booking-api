@@ -23,9 +23,7 @@ class RatingService(BaseService):
 
         return result
 
-    async def patch_rating(
-            self, rating_data: RatingPatch, hotel_id: int, user_id: UserIdDep
-    ):
+    async def patch_rating(self, rating_data: RatingPatch, hotel_id: int, user_id: UserIdDep):
         try:
             await self.db.hotels.get_one(id=hotel_id)
         except ObjectNotFoundException as exc:
@@ -36,4 +34,3 @@ class RatingService(BaseService):
 
         await self.db.ratings.edit(rating_data, is_patch=True, user_id=user_id, hotel_id=hotel_id)
         await self.db.commit()
-
