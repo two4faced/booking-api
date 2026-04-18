@@ -20,4 +20,4 @@ class RatingsORM(Base):
 
     __table_args__ = (UniqueConstraint('user_id', 'hotel_id', name='_user_hotel_ids_uc'),)
 
-    user: Mapped['UsersORM'] = relationship(back_populates='ratings')
+    user: Mapped['UsersORM'] = relationship(back_populates='ratings', lazy='selectin')

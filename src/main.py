@@ -5,6 +5,16 @@ from src.api.bookings import router as router_bookings
 from src.api.facilities import router as router_facilities
 from src.api.images import router as router_images
 from src.api.ratings import router as router_ratings
+from src.database import admin_engine
+
+from src.admin.views import (
+    UsersAdmin,
+    HotelsAdmin,
+    RoomsAdmin,
+    BookingsAdmin,
+    FacilitiesAdmin,
+    RatingsAdmin,
+)
 
 from contextlib import asynccontextmanager
 import sys
@@ -15,6 +25,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from sqladmin import Admin
 import uvicorn
 
 from src.setup import redis_manager
@@ -34,6 +45,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+admin = Admin(app, admin_engine)
 
 app.include_router(router_auth)
 app.include_router(router_hotels)
@@ -43,10 +55,17 @@ app.include_router(router_facilities)
 app.include_router(router_ratings)
 app.include_router(router_images)
 
+admin.add_view(UsersAdmin)
+admin.add_view(HotelsAdmin)
+admin.add_view(RoomsAdmin)
+admin.add_view(BookingsAdmin)
+admin.add_view(FacilitiesAdmin)
+admin.add_view(RatingsAdmin)
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:3000'],  # URL вашего фронтенда
+    allow_origins=['http://localhost:3000'],
     allow_credentials=True,
     allow_methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allow_headers=['*'],

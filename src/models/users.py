@@ -27,4 +27,4 @@ class UsersORM(Base):
     email: Mapped[str] = mapped_column(String(200), unique=True)
     hashed_password: Mapped[str] = mapped_column(String(200))
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.USER)
-    ratings: Mapped[list['RatingsORM']] = relationship(back_populates='user')
+    ratings: Mapped[list['RatingsORM']] = relationship(back_populates='user', lazy='selectin')
