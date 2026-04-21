@@ -1,3 +1,9 @@
+from contextlib import asynccontextmanager
+import sys
+import logging
+from pathlib import Path
+
+from src.admin.auth import AdminAuthService
 from src.api.hotels import router as router_hotels
 from src.api.auth import router as router_auth
 from src.api.rooms import router as router_rooms
@@ -5,6 +11,7 @@ from src.api.bookings import router as router_bookings
 from src.api.facilities import router as router_facilities
 from src.api.images import router as router_images
 from src.api.ratings import router as router_ratings
+from src.config import settings
 from src.database import admin_engine
 
 from src.admin.views import (
@@ -16,15 +23,11 @@ from src.admin.views import (
     RatingsAdmin,
 )
 
-from contextlib import asynccontextmanager
-import sys
-import logging
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from starlette.middleware.sessions import SessionMiddleware
 from sqladmin import Admin
 import uvicorn
 
@@ -45,7 +48,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-admin = Admin(app, admin_engine)
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.JWT_SECRET_KEY,
+    same_site='lax',
+    https_only=False,
+)
+
+admin = Admin(app, admin_engine, authentication_backend=AdminAuthService(secret_key=settings.JWT_SECRET_KEY))
 
 app.include_router(router_auth)
 app.include_router(router_hotels)

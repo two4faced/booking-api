@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
 from src.exceptions import ObjectAlreadyExistsException, FacilityAlreadyExists
@@ -10,7 +9,6 @@ router = APIRouter(prefix='/facilities', tags=['Удобства'])
 
 
 @router.get('', summary='Получить все удобства')
-@cache(expire=10)
 async def get_all_facilities(db: DBDep):
     return await FacilitiesService(db).get_all_facilities()
 
