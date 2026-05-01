@@ -17,6 +17,7 @@ from src.exceptions import (
     RoomBookedHTTPException,
 )
 from src.schemas.rooms import RoomsAddRequest, RoomsPatchRequest
+from src.services.bookings import BookingsService
 from src.services.rooms import RoomsService
 
 router = APIRouter(prefix='/hotels', tags=['Номера'])
@@ -63,6 +64,7 @@ async def add_room(room_data: RoomsAddRequest, db: DBDep, hotel_id: int = Path()
 @router.delete('/{hotel_id}/rooms/{room_id}', summary='Удалить номер')
 async def delete_room(hotel_id: int, room_id: int, db: DBDep):
     try:
+        await BookingsService(db).check_room_bookings(room_id=room_id)
         await RoomsService(db).delete_room(hotel_id, room_id)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
@@ -70,9 +72,6 @@ async def delete_room(hotel_id: int, room_id: int, db: DBDep):
         raise RoomNotFoundHTTPException
     except ObjectBookedException:
         raise RoomBookedHTTPException
-
-    await db.rooms.delete(id=room_id, hotel_id=hotel_id)
-    await db.commit()
 
     return {'status': 'OK'}
 

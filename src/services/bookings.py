@@ -1,5 +1,8 @@
 from src.api.dependencies import UserIdDep
-from src.exceptions import DateFromLaterThenOrEQDateToException
+from src.exceptions import (
+    DateFromLaterThenOrEQDateToException,
+    ObjectBookedException,
+)
 from src.schemas.bookings import BookingsAddRequest, BookingsAdd
 from src.services.base import BaseService
 from src.services.hotels import HotelsService
@@ -33,3 +36,15 @@ class BookingsService(BaseService):
 
         await self.db.commit()
         return booking
+
+    async def check_bookings(self, hotel_id: int):
+        booking = await self.db.bookings.get_one_or_none(hotel_id=hotel_id)
+
+        if booking:
+            raise ObjectBookedException
+
+    async def check_room_bookings(self, room_id: int):
+        booking = await self.db.bookings.get_one_or_none(room_id=room_id)
+
+        if booking:
+            raise ObjectBookedException

@@ -52,6 +52,10 @@ class ObjectBookedException(BookingException):
     detail = 'Объект забронирован и не может быть удален'
 
 
+class ObjectCantBeDeletedException(BookingException):
+    detail = 'Объект не может быть удалён'
+
+
 class BookingHTTPException(HTTPException):
     status_code = 500
     detail = 'Непредвиденная ошибка'
@@ -128,3 +132,8 @@ class RoomBookedHTTPException(BookingHTTPException):
 class RatingIsAlreadyPostedHTTPException(BookingHTTPException):
     status_code = 409
     detail = 'Вы уже оставляли отзыв для этого отеля'
+
+
+class NotEnoughPermissionsHTTPException(BookingHTTPException):
+    status_code = 403
+    detail = 'Недостаточно прав доступа'

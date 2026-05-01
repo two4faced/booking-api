@@ -4,7 +4,8 @@ from fastapi import Depends, Query, Request
 from pydantic import BaseModel
 
 from src.database import async_session_maker
-from src.exceptions import NotAuthenticatedHTTPException
+from src.exceptions import NotAuthenticatedHTTPException, NotEnoughPermissionsHTTPException
+from src.models.users import UserRole, UsersORM
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
 
@@ -42,3 +43,27 @@ async def get_db():
 
 
 DBDep = Annotated[DBManager, Depends(get_db)]
+
+
+async def get_current_user(
+    user_id: int = Depends(get_current_user_id), db: DBManager = Depends(get_db)
+):
+    return await db.users.get_one(id=user_id)
+
+
+UserDep = Annotated[UsersORM, Depends(get_current_user)]
+
+
+def require_role(*roles: UserRole):
+    async def checker(user: UserDep):
+        user_role = user.role if isinstance(user.role, UserRole) else UserRole(user.role)
+        if user_role not in roles:
+            raise NotEnoughPermissionsHTTPException
+        return True
+
+    return checker
+
+
+RequireAdminDep = Depends(require_role(UserRole.ADMIN))
+RequireOwnerDep = require_role(UserRole.HOTEL_OWNER)
+RequireOwnerOrAdminDep = require_role(UserRole.HOTEL_OWNER, UserRole.ADMIN)

@@ -56,7 +56,9 @@ app.add_middleware(
     https_only=False,
 )
 
-admin = Admin(app, admin_engine, authentication_backend=AdminAuthService(secret_key=settings.JWT_SECRET_KEY))
+admin = Admin(
+    app, admin_engine, authentication_backend=AdminAuthService(secret_key=settings.JWT_SECRET_KEY)
+)
 
 app.include_router(router_auth)
 app.include_router(router_hotels)

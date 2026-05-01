@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import Query, APIRouter, Body, HTTPException
 from fastapi_cache.decorator import cache
 
-from src.api.dependencies import PaginationDep, DBDep
+from src.api.dependencies import PaginationDep, DBDep, RequireAdminDep
 from src.exceptions import (
     ObjectNotFoundException,
     DateFromLaterThenOrEQDateToException,
@@ -11,10 +11,11 @@ from src.exceptions import (
     HotelNotFoundException,
     NothingChangedException,
     NothingChangedHTTPException,
-    HotelBookedHTTPException,
     ObjectBookedException,
+    HotelBookedHTTPException,
 )
 from src.schemas.hotels import HotelPatch, HotelAdd
+from src.services.bookings import BookingsService
 from src.services.hotels import HotelsService
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
@@ -74,9 +75,10 @@ async def create_hotel(
     return {'status': 'OK', 'data': result}
 
 
-@router.delete('/{hotel_id}', summary='Удалить отель')
+@router.delete('/{hotel_id}', summary='Удалить отель', dependencies=[RequireAdminDep])
 async def delete_hotel(hotel_id: int, db: DBDep):
     try:
+        await BookingsService(db).check_bookings(hotel_id=hotel_id)
         await HotelsService(db).delete_hotel(hotel_id)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException

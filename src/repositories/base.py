@@ -16,7 +16,7 @@ from src.exceptions import (
     ObjectNotFoundException,
     ObjectAlreadyExistsException,
     IncorrectStringValueException,
-    ObjectBookedException,
+    ObjectCantBeDeletedException,
 )
 from src.repositories.mappers.base import DataMapper
 
@@ -102,7 +102,7 @@ class BaseRepository:
             await self.session.execute(del_stmt)
         except IntegrityError as exc:
             if isinstance(exc.orig.__cause__, ForeignKeyViolationError):
-                raise ObjectBookedException
+                raise ObjectCantBeDeletedException
             else:
                 logging.error(
                     f'Незнакомая ошибка, входные данные: {filter_by}, тип ошибки: {exc.orig.__cause__}'

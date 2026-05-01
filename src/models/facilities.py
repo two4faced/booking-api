@@ -15,7 +15,7 @@ class FacilitiesORM(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(100), unique=True)
 
-    rooms: Mapped[list["RoomsORM"]] = relationship(
+    rooms: Mapped[list['RoomsORM']] = relationship(
         back_populates='facilities',
         secondary='room_facilities',
         lazy='selectin'
@@ -26,7 +26,7 @@ class RoomFacilitiesORM(Base):
     __tablename__ = 'room_facilities'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    room_id: Mapped[int] = mapped_column(ForeignKey('rooms.id'))
-    facility_id: Mapped[int] = mapped_column(ForeignKey('facilities.id'))
+    room_id: Mapped[int] = mapped_column(ForeignKey('rooms.id', ondelete='CASCADE'))
+    facility_id: Mapped[int] = mapped_column(ForeignKey('facilities.id', ondelete='CASCADE'))
 
     __table_args__ = (UniqueConstraint('room_id', 'facility_id', name='uix_room_facility'),)
