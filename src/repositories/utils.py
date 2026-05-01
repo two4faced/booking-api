@@ -7,7 +7,12 @@ from src.models.bookings import BookingsORM
 from src.models.rooms import RoomsORM
 
 
-def rooms_ids_for_booking(date_from: date, date_to: date, hotel_id: int | None = None) -> Select:
+def rooms_ids_for_booking(
+    date_from: date,
+    date_to: date,
+    hotel_id: int | None = None,
+    guests_count: int | None = None,
+) -> Select:
     rooms_count = (
         select(BookingsORM.room_id, func.count('*').label('rooms_booked'))
         .select_from(BookingsORM)
@@ -27,8 +32,12 @@ def rooms_ids_for_booking(date_from: date, date_to: date, hotel_id: int | None =
     )
 
     rooms_ids_for_hotel = select(RoomsORM.id).select_from(RoomsORM)
+
     if hotel_id is not None:
         rooms_ids_for_hotel = rooms_ids_for_hotel.filter_by(hotel_id=hotel_id)
+
+    if guests_count is not None:
+        rooms_ids_for_hotel = rooms_ids_for_hotel.filter(RoomsORM.guests_count >= guests_count)
 
     rooms_ids_for_hotel_subquery: Subquery = rooms_ids_for_hotel.subquery(
         name='rooms_ids_for_hotel'

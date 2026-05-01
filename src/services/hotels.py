@@ -19,6 +19,7 @@ class HotelsService(BaseService):
         location: str | None,
         date_from: date,
         date_to: date,
+        guests_count: int | None
     ):
         per_page = pagination.per_page or 5
 
@@ -29,6 +30,7 @@ class HotelsService(BaseService):
             location=location,
             limit=per_page,
             offset=per_page * (pagination.page - 1),
+            guests_count=guests_count
         )
 
     async def get_hotel(self, hotel_id: int):
