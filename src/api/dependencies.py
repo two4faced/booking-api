@@ -65,5 +65,5 @@ def require_role(*roles: UserRole):
 
 
 RequireAdminDep = Depends(require_role(UserRole.ADMIN))
-RequireOwnerDep = require_role(UserRole.HOTEL_OWNER)
-RequireOwnerOrAdminDep = require_role(UserRole.HOTEL_OWNER, UserRole.ADMIN)
+RequireOwnerDep = Depends(require_role(UserRole.HOTEL_OWNER))
+RequireOwnerOrAdminDep = Depends(require_role(UserRole.HOTEL_OWNER, UserRole.ADMIN))

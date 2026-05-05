@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import Path, APIRouter, HTTPException, Query
 
-from src.api.dependencies import DBDep
+from src.api.dependencies import DBDep, RequireOwnerDep, RequireAdminDep
 from src.exceptions import (
     DateFromLaterThenOrEQDateToException,
     HotelNotFoundHTTPException,
@@ -49,7 +49,7 @@ async def get_room(
     return result
 
 
-@router.post('/{hotel_id}/rooms', summary='Добавить номер')
+@router.post('/{hotel_id}/rooms', summary='Добавить номер', dependencies=[RequireOwnerDep])
 async def add_room(room_data: RoomsAddRequest, db: DBDep, hotel_id: int = Path()):
     try:
         result = await RoomsService(db).add_room(room_data, hotel_id)
@@ -61,7 +61,9 @@ async def add_room(room_data: RoomsAddRequest, db: DBDep, hotel_id: int = Path()
     return {'status': 'OK', 'data': result}
 
 
-@router.delete('/{hotel_id}/rooms/{room_id}', summary='Удалить номер')
+@router.delete(
+    '/{hotel_id}/rooms/{room_id}', summary='Удалить номер', dependencies=[RequireAdminDep]
+)
 async def delete_room(hotel_id: int, room_id: int, db: DBDep):
     try:
         await BookingsService(db).check_room_bookings(room_id=room_id)
@@ -76,7 +78,9 @@ async def delete_room(hotel_id: int, room_id: int, db: DBDep):
     return {'status': 'OK'}
 
 
-@router.patch('/{hotel_id}/rooms/{room_id}', summary='Частично изменить номер')
+@router.patch(
+    '/{hotel_id}/rooms/{room_id}', summary='Частично изменить номер', dependencies=[RequireOwnerDep]
+)
 async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomsPatchRequest):
     try:
         await RoomsService(db).edit_room(hotel_id, room_id, room_data)
@@ -90,7 +94,7 @@ async def edit_room(db: DBDep, hotel_id: int, room_id: int, room_data: RoomsPatc
     return {'status': 'OK'}
 
 
-@router.put('/{hotel_id}/rooms/{room_id}', summary='Изменить номер')
+@router.put('/{hotel_id}/rooms/{room_id}', summary='Изменить номер', dependencies=[RequireOwnerDep])
 async def change_room(hotel_id: int, room_id: int, room_data: RoomsAddRequest, db: DBDep):
     try:
         await RoomsService(db).change_room(hotel_id, room_id, room_data)

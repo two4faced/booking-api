@@ -1,9 +1,17 @@
 from datetime import date
 
 from fastapi import Query, APIRouter, Body, HTTPException
+from fastapi.openapi.models import Example
 from fastapi_cache.decorator import cache
 
-from src.api.dependencies import PaginationDep, DBDep, RequireAdminDep
+from src.api.dependencies import (
+    PaginationDep,
+    DBDep,
+    RequireAdminDep,
+    RequireOwnerDep,
+    RequireOwnerOrAdminDep,
+    UserIdDep,
+)
 from src.exceptions import (
     ObjectNotFoundException,
     DateFromLaterThenOrEQDateToException,
@@ -14,7 +22,7 @@ from src.exceptions import (
     ObjectBookedException,
     HotelBookedHTTPException,
 )
-from src.schemas.hotels import HotelPatch, HotelAdd
+from src.schemas.hotels import HotelPatch, HotelAdd, RequestHotelAdd
 from src.services.bookings import BookingsService
 from src.services.hotels import HotelsService
 
@@ -30,12 +38,12 @@ async def get_hotels(
     location: str | None = Query(None, description='Локация отеля'),
     date_from: date = Query(example='2024-08-01'),
     date_to: date = Query(example='2024-08-10'),
-    guests_count: int | None = Query(
-    None,
-    description='Количество гостей')
+    guests_count: int | None = Query(None, description='Количество гостей'),
 ):
     try:
-        hotels = await HotelsService(db).get_hotels(pagination, title, location, date_from, date_to, guests_count)
+        hotels = await HotelsService(db).get_hotels(
+            pagination, title, location, date_from, date_to, guests_count
+        )
     except DateFromLaterThenOrEQDateToException as exc:
         raise HTTPException(status_code=400, detail=exc.detail)
 
@@ -50,10 +58,11 @@ async def get_hotel(hotel_id: int, db: DBDep):
         raise HotelNotFoundHTTPException
 
 
-@router.post('', summary='Добавить отель')
+@router.post('', summary='Добавить отель', dependencies=[RequireOwnerDep])
 async def create_hotel(
+    user_id: UserIdDep,
     db: DBDep,
-    hotel_data: HotelAdd = Body(
+    hotel_data: RequestHotelAdd = Body(
         openapi_examples={
             '1': {
                 'summary': 'Сочи',
@@ -74,7 +83,8 @@ async def create_hotel(
         }
     ),
 ):
-    result = await HotelsService(db).create_hotel(hotel_data)
+    new_hotel_data = HotelAdd(owner_id=user_id, **hotel_data.model_dump())
+    result = await HotelsService(db).create_hotel(new_hotel_data)
     return {'status': 'OK', 'data': result}
 
 
@@ -90,16 +100,7 @@ async def delete_hotel(hotel_id: int, db: DBDep):
     return {'status': 'OK'}
 
 
-@router.put('/{hotel_id}', summary='Изменить отель')
-async def change_hotel(hotel_id: int, hotel_data: HotelAdd, db: DBDep):
-    try:
-        await HotelsService(db).change_hotel(hotel_id, hotel_data)
-    except HotelNotFoundException:
-        raise HotelNotFoundHTTPException
-    return {'status': 'OK'}
-
-
-@router.patch('/{hotel_id}', summary='Частично изменить отель')
+@router.patch('/{hotel_id}', summary='Частично изменить отель', dependencies=[RequireOwnerDep])
 async def patch_hotel(hotel_id: int, hotel_data: HotelPatch, db: DBDep):
     try:
         await HotelsService(db).patch_hotel(hotel_id, hotel_data)

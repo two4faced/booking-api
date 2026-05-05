@@ -19,7 +19,7 @@ class HotelsService(BaseService):
         location: str | None,
         date_from: date,
         date_to: date,
-        guests_count: int | None
+        guests_count: int | None,
     ):
         per_page = pagination.per_page or 5
 
@@ -30,7 +30,7 @@ class HotelsService(BaseService):
             location=location,
             limit=per_page,
             offset=per_page * (pagination.page - 1),
-            guests_count=guests_count
+            guests_count=guests_count,
         )
 
     async def get_hotel(self, hotel_id: int):
@@ -49,12 +49,6 @@ class HotelsService(BaseService):
         await self.check_hotel_existence(hotel_id)
 
         await self.db.hotels.delete(id=hotel_id)
-        await self.db.commit()
-
-    async def change_hotel(self, hotel_id: int, hotel_data: HotelAdd):
-        await self.check_hotel_existence(hotel_id)
-
-        await self.db.hotels.edit(hotel_data, id=hotel_id)
         await self.db.commit()
 
     async def patch_hotel(self, hotel_id: int, hotel_data: HotelPatch):
