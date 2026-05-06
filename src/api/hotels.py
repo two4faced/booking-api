@@ -1,7 +1,6 @@
 from datetime import date
 
 from fastapi import Query, APIRouter, Body, HTTPException
-from fastapi.openapi.models import Example
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import (
@@ -9,7 +8,6 @@ from src.api.dependencies import (
     DBDep,
     RequireAdminDep,
     RequireOwnerDep,
-    RequireOwnerOrAdminDep,
     UserIdDep,
 )
 from src.exceptions import (
@@ -39,10 +37,23 @@ async def get_hotels(
     date_from: date = Query(example='2024-08-01'),
     date_to: date = Query(example='2024-08-10'),
     guests_count: int | None = Query(None, description='Количество гостей'),
+    min_price: int | None = Query(None, description='Минимальная цена'),
+    max_price: int | None = Query(None, description='Максимальная цена'),
+    sort_by: str | None = Query(
+        'price_asc', description='price_asc / price_desc / rating_desc / rating_asc'
+    ),
 ):
     try:
         hotels = await HotelsService(db).get_hotels(
-            pagination, title, location, date_from, date_to, guests_count
+            pagination=pagination,
+            title=title,
+            location=location,
+            date_from=date_from,
+            date_to=date_to,
+            guests_count=guests_count,
+            min_price=min_price,
+            max_price=max_price,
+            sort_by=sort_by,
         )
     except DateFromLaterThenOrEQDateToException as exc:
         raise HTTPException(status_code=400, detail=exc.detail)
@@ -70,6 +81,7 @@ async def create_hotel(
                     'title': 'Отель 5 звезд у моря',
                     'location': 'г. Сочи, ул. Моря, 1',
                     'stars': 3,
+                    'phone': 8189874656,
                 },
             },
             '2': {
@@ -78,6 +90,7 @@ async def create_hotel(
                     'title': 'Отель У фонтана',
                     'location': 'Дубай, ул. Шейха, 2',
                     'stars': 5,
+                    'phone': 79457682324,
                 },
             },
         }

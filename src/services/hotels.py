@@ -20,6 +20,9 @@ class HotelsService(BaseService):
         date_from: date,
         date_to: date,
         guests_count: int | None,
+        min_price: int | None,
+        max_price: int | None,
+        sort_by: str | None,
     ):
         per_page = pagination.per_page or 5
 
@@ -31,6 +34,9 @@ class HotelsService(BaseService):
             limit=per_page,
             offset=per_page * (pagination.page - 1),
             guests_count=guests_count,
+            min_price=min_price,
+            max_price=max_price,
+            sort_by=sort_by,
         )
 
     async def get_hotel(self, hotel_id: int):

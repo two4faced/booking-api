@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 
 from src.exceptions import DateFromLaterThenOrEQDateToException
 from src.models.hotels import HotelsORM
@@ -21,6 +21,9 @@ class HotelsRepository(BaseRepository):
         offset,
         limit,
         guests_count: int | None = None,
+        min_price: int | None = None,
+        max_price: int | None = None,
+        sort_by: str | None = 'price_asc',
     ):
         if date_to <= date_from:
             raise DateFromLaterThenOrEQDateToException
@@ -32,12 +35,32 @@ class HotelsRepository(BaseRepository):
         )
 
         hotels_ids = (
-            select(RoomsORM.hotel_id)
+            select(RoomsORM.hotel_id, func.min(RoomsORM.price).label('min_price'))
             .select_from(RoomsORM)
             .filter(RoomsORM.id.in_(rooms_ids_to_get))
+            .group_by(RoomsORM.hotel_id)
+            .subquery()
         )
 
-        query = select(HotelsORM).filter(HotelsORM.id.in_(hotels_ids))
+        query = select(HotelsORM).join(hotels_ids, HotelsORM.id == hotels_ids.c.hotel_id)
+
+        if sort_by == 'price_desc':
+            query = query.order_by(hotels_ids.c.min_price.desc())
+
+        elif sort_by == 'rating_desc':
+            query = query.order_by(HotelsORM.rating.desc())
+
+        elif sort_by == 'rating_asc':
+            query = query.order_by(HotelsORM.rating.asc())
+
+        else:
+            query = query.order_by(hotels_ids.c.min_price.asc())
+
+        if min_price is not None:
+            query = query.filter(hotels_ids.c.min_price >= min_price)
+
+        if max_price is not None:
+            query = query.filter(hotels_ids.c.min_price <= max_price)
 
         if location:
             query = query.filter(HotelsORM.location.icontains(location.strip()))
