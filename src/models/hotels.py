@@ -30,5 +30,18 @@ class HotelsORM(Base):
     bookings: Mapped[list['BookingsORM']] = relationship(
         back_populates='hotel', cascade='all, delete-orphan'
     )
+    images: Mapped[list['HotelsImagesORM']] = relationship(
+        back_populates='hotel', cascade='all, delete-orphan'
+    )
 
     __table_args__ = (UniqueConstraint('title', 'location', name='_title_location_uc'),)
+
+
+class HotelsImagesORM(Base):
+    __tablename__ = 'hotels_images'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    hotel_id: Mapped[int] = mapped_column(ForeignKey('hotels.id'))
+    path: Mapped[str]
+
+    hotel: Mapped['HotelsORM'] = relationship(back_populates='images')

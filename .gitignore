@@ -4,3 +4,4 @@ __pycache__
 .idea
 .venv
 /src/static/images
+/tests

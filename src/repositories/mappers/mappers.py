@@ -1,13 +1,14 @@
 from src.models import RatingsORM
 from src.models.bookings import BookingsORM
 from src.models.facilities import FacilitiesORM, RoomFacilitiesORM
-from src.models.hotels import HotelsORM
+from src.models.hotels import HotelsORM, HotelsImagesORM
 from src.models.rooms import RoomsORM
 from src.models.users import UsersORM
 from src.repositories.mappers.base import DataMapper
 from src.schemas.bookings import Bookings
 from src.schemas.facilities import Facilities, RoomFacility
 from src.schemas.hotels import Hotel
+from src.schemas.images import HotelImage
 from src.schemas.ratings import Rating
 from src.schemas.rooms import Rooms, RoomsWithRels
 from src.schemas.users import User
@@ -60,3 +61,8 @@ class RatingsDataMapper(DataMapper):
             data['user_name'] = model.user.name
 
         return Rating.model_validate(data)
+
+
+class HotelsImagesDataMapper(DataMapper):
+    db_model = HotelsImagesORM
+    schema = HotelImage
