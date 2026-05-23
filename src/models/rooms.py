@@ -30,3 +30,16 @@ class RoomsORM(Base):
     hotel: Mapped['HotelsORM'] = relationship(
         back_populates='rooms'
     )
+    images: Mapped[list['RoomsImagesORM']] = relationship(
+        back_populates='room', cascade='all, delete-orphan'
+    )
+
+
+class RoomsImagesORM(Base):
+    __tablename__ = 'rooms_images'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    room_id: Mapped[int] = mapped_column(ForeignKey('rooms.id'))
+    path: Mapped[str]
+
+    room: Mapped['RoomsORM'] = relationship(back_populates='images')

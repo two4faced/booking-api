@@ -8,3 +8,12 @@ class HotelImageAdd(BaseModel):
 
 class HotelImage(HotelImageAdd):
     id: int
+
+
+class RoomImageAdd(BaseModel):
+    room_id: int
+    path: str
+
+
+class RoomImage(RoomImageAdd):
+    id: int

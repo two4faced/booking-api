@@ -12,8 +12,17 @@ async def add_hotel_image(file: UploadFile, hotel_id: int, db: DBDep):
     return {'status': 'OK'}
 
 
-@router.post('/hotels/{hotel_id}/rooms/{room_id}/images')
-def add_room_image(file: UploadFile, hotel_id: int, room_id: int):
-    image_path = ImagesService().add_room_image(file, hotel_id, room_id)
+@router.get('/hotels/{hotel_id}/images')
+async def get_all_hotel_images(hotel_id: int, db: DBDep):
+    return await ImagesService(db).get_all_hotel_images(hotel_id=hotel_id)
 
-    return {'status': 'OK', 'path': image_path}
+
+@router.post('/hotels/{hotel_id}/rooms/{room_id}/images')
+async def add_room_image(file: UploadFile, hotel_id: int, room_id: int, db: DBDep):
+    await ImagesService(db).add_room_image(file, hotel_id, room_id)
+    return {'status': 'OK'}
+
+
+@router.get('/hotels/{hotel_id}/rooms/{room_id}/images')
+async def get_all_room_images(room_id: int, db: DBDep):
+    return await ImagesService(db).get_all_room_images(room_id=room_id)
