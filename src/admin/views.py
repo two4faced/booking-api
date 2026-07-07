@@ -1,68 +1,81 @@
-from sqladmin import ModelView
-
-from src.models import *
+from starlette_admin.contrib.sqla import ModelView
 
 
-class UsersAdmin(ModelView, model=UsersORM):
-    name_plural = 'Users'
-    column_list = [UsersORM.id, UsersORM.name, UsersORM.email, UsersORM.role]
+class UsersView(ModelView):
+    label = 'Users'
 
+    fields = ['id', 'name', 'email', 'role']
+
+    sortable_fields = ['id', 'email']
+    searchable_fields = ['email', 'name']
     column_details_exclude_list = ['hashed_password']
 
 
-class HotelsAdmin(ModelView, model=HotelsORM):
-    name_plural = 'Hotels'
+class HotelsView(ModelView):
+    label = 'Hotels'
 
-    column_list = [
-        HotelsORM.id,
-        HotelsORM.title,
-        HotelsORM.location,
-        HotelsORM.stars,
-        HotelsORM.rating,
-    ]
+    fields = ['id', 'title', 'location', 'stars', 'phone', 'rating', 'owner_id']
+
+    searchable_fields = ['id', 'title', 'location', 'owner_id']
+    sortable_fields = ['id', 'stars', 'rating']
 
 
-class RoomsAdmin(ModelView, model=RoomsORM):
-    name_plural = 'Rooms'
+class HotelsImagesView(ModelView):
+    label = 'Hotel Images'
 
-    column_list = [
-        RoomsORM.id,
-        RoomsORM.hotel_id,
-        RoomsORM.title,
-        RoomsORM.description,
-        RoomsORM.price,
-        RoomsORM.quantity,
-        RoomsORM.guests_count,
-    ]
+    fields = ['id', 'hotel_id', 'path']
+
+    searchable_fields = ['path', 'hotel_id']
 
 
-class BookingsAdmin(ModelView, model=BookingsORM):
-    name_plural = 'Bookings'
+class RoomsView(ModelView):
+    label = 'Rooms'
 
-    column_list = [
-        BookingsORM.id,
-        BookingsORM.user_id,
-        BookingsORM.hotel_id,
-        BookingsORM.room_id,
-        BookingsORM.date_from,
-        BookingsORM.date_to,
-        BookingsORM.price,
-    ]
+    fields = ['id', 'hotel_id', 'title', 'description', 'price', 'quantity', 'guests_count']
+
+    searchable_fields = ['title', 'hotel_id']
+    sortable_fields = ['id', 'hotel_id', 'title', 'price', 'quantity', 'guests_count']
 
 
-class RatingsAdmin(ModelView, model=RatingsORM):
-    name_plural = 'Ratings'
+class RoomsImagesView(ModelView):
+    label = 'Room Images'
 
-    column_list = [
-        RatingsORM.id,
-        RatingsORM.user_id,
-        RatingsORM.hotel_id,
-        RatingsORM.rating,
-        RatingsORM.rating_text,
-    ]
+    fields = ['id', 'room_id', 'path']
+
+    searchable_fields = ['path', 'room_id']
+    sortable_fields = ['id', 'room_id']
 
 
-class FacilitiesAdmin(ModelView, model=FacilitiesORM):
-    name_plural = 'Facilities'
+class FacilitiesView(ModelView):
+    label = 'Facilities'
 
-    column_list = [FacilitiesORM.id, FacilitiesORM.title]
+    fields = ['id', 'title']
+
+    searchable_fields = ['title']
+
+
+class RoomFacilitiesView(ModelView):
+    label = 'Room Facilities'
+
+    fields = ['id', 'room_id', 'facility_id']
+
+    searchable_fields = ['id', 'room_id', 'facility_id']
+
+
+class BookingsView(ModelView):
+    label = 'Bookings'
+
+    fields = ['id', 'user_id', 'hotel_id', 'room_id', 'date_from', 'date_to', 'price']
+
+    searchable_fields = ['user_id', 'hotel_id']
+    sortable_fields = ['id', 'date_from', 'date_to', 'price']
+
+
+class RatingsView(ModelView):
+    label = 'Ratings'
+
+    column_list = ['id', 'user_id', 'hotel_id', 'rating', 'rating_text']
+
+    searchable_fields = ['id', 'rating_text']
+    sortable_fields = ['id', 'user_id', 'hotel_id', 'rating']
+

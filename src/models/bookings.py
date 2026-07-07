@@ -26,6 +26,3 @@ class BookingsORM(Base):
     hotel: Mapped['HotelsORM'] = relationship(back_populates='bookings')
     room: Mapped['RoomsORM'] = relationship()
 
-    @hybrid_property
-    def total_cost(self) -> int:
-        return self.price * (self.date_to - self.date_from).days
