@@ -9,16 +9,16 @@ from src.exceptions import (
     WrongPassOrEmailHTTPException,
     NotAuthenticatedHTTPException,
 )
-from src.schemas.users import UserRequestAdd, UserLogIn, User
+from src.schemas.users import UserRequestAdd, UserLogIn, User, UserPatch
 from src.services.auth import AuthService
 
 router = APIRouter(prefix='/auth', tags=['Авторизация и Аутентификация'])
 
 
 @router.post('/register')
-async def register_user(user_data: UserRequestAdd, db: DBDep, is_owner: bool = False):
+async def register_user(user_data: UserRequestAdd, db: DBDep):
     try:
-        await AuthService(db).register_user(user_data, is_owner)
+        await AuthService(db).register_user(user_data)
     except ObjectAlreadyExistsException:
         raise HTTPException(status_code=409, detail='Данный пользователь уже зарегистрирован')
 
@@ -42,6 +42,12 @@ async def login_user(user_data: UserLogIn, response: Response, db: DBDep):
 async def get_me(user_id: UserIdDep, db: DBDep):
     user: User = await AuthService(db).get_me(user_id)  # type: ignore
     return user
+
+
+@router.patch('/me')
+async def change_me(user_id: UserIdDep, user_data: UserPatch, db: DBDep):
+    await AuthService(db).change_me(user_id, user_data)
+    return {'status': 'OK'}
 
 
 @router.post('/logout')

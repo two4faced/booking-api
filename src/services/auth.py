@@ -12,23 +12,20 @@ from src.exceptions import (
     WrongPassOrEmailException,
     NotAuthenticatedHTTPException,
 )
-from src.schemas.users import UserRequestAdd, UserAdd, UserLogIn
+from src.schemas.users import UserRequestAdd, UserAdd, UserLogIn, UserPatch
 from src.services.base import BaseService
 
 
 class AuthService(BaseService):
     pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
-    async def register_user(self, user_data: UserRequestAdd, is_owner: bool):
+    async def register_user(self, user_data: UserRequestAdd):
         hashed_password = self.hash_password(user_data.password)
         new_user_data = UserAdd(
             name=user_data.name,
             email=user_data.email,
             hashed_password=hashed_password,
         )
-
-        if is_owner:
-            new_user_data.role = 'HOTEL_OWNER'
 
         await self.db.users.add(new_user_data)
         await self.db.commit()
@@ -48,7 +45,12 @@ class AuthService(BaseService):
         user = await self.db.users.get_one_or_none(id=user_id)
         return user
 
-    def create_access_token(self, data: dict) -> str:
+    async def change_me(self, user_id: int, user_data: UserPatch):
+        await self.db.users.edit(user_data, is_patch=True, id=user_id)
+        await self.db.commit()
+
+    @staticmethod
+    def create_access_token(data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -65,7 +67,8 @@ class AuthService(BaseService):
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    def decode_jwt(self, token: str) -> dict:
+    @staticmethod
+    def decode_jwt(token: str) -> dict:
         try:
             return jwt.decode(
                 token, key=settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]

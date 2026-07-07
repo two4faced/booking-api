@@ -16,16 +16,20 @@ class ObjectNotFoundException(BookingException):
     detail = 'Объект не найден'
 
 
-class HotelNotFoundException(ObjectNotFoundException):
+class HotelNotFoundException(BookingException):
     detail = 'Отель не найден'
 
 
-class RoomNotFoundException(ObjectNotFoundException):
+class RoomNotFoundException(BookingException):
     detail = 'Номер не найден'
 
 
-class UserNotFoundException(ObjectNotFoundException):
+class UserNotFoundException(BookingException):
     detail = 'Пользователь не найден'
+
+
+class BookingNotFoundException(BookingException):
+    detail = 'Бронирование не найдено'
 
 
 class ObjectAlreadyExistsException(BookingException):
@@ -56,6 +60,10 @@ class ObjectCantBeDeletedException(BookingException):
     detail = 'Объект не может быть удалён'
 
 
+class WrongExtensionException(BookingException):
+    detail = 'Неверное расширение файла'
+
+
 class BookingHTTPException(HTTPException):
     status_code = 500
     detail = 'Непредвиденная ошибка'
@@ -82,6 +90,11 @@ class RoomNotFoundHTTPException(BookingHTTPException):
 class UserNotFoundHTTPException(BookingHTTPException):
     status_code = 401
     detail = 'Пользователь не найден'
+
+
+class BookingNotFoundHTTPException(BookingHTTPException):
+    status_code = 404
+    detail = 'Бронирование не было найдено'
 
 
 class FacilitiesNotFoundHTTTPException(BookingHTTPException):
@@ -137,3 +150,8 @@ class RatingIsAlreadyPostedHTTPException(BookingHTTPException):
 class NotEnoughPermissionsHTTPException(BookingHTTPException):
     status_code = 403
     detail = 'Недостаточно прав доступа'
+
+
+class WrongExtensionHTTPException(BookingHTTPException):
+    status_code = 415
+    detail = 'Неверное расширение файла'

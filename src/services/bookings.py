@@ -2,6 +2,7 @@ from src.api.dependencies import UserIdDep
 from src.exceptions import (
     DateFromLaterThenOrEQDateToException,
     ObjectBookedException,
+    BookingNotFoundException,
 )
 from src.schemas.bookings import BookingsAddRequest, BookingsAdd
 from src.services.base import BaseService
@@ -37,6 +38,11 @@ class BookingsService(BaseService):
         await self.db.commit()
         return booking
 
+    async def cancel_booking(self, user_id: int, booking_id: int):
+        await self.check_booking(user_id, booking_id)
+        await self.db.bookings.delete(user_id=user_id, id=booking_id)
+        await self.db.commit()
+
     async def check_bookings(self, hotel_id: int):
         booking = await self.db.bookings.get_one_or_none(hotel_id=hotel_id)
 
@@ -48,3 +54,9 @@ class BookingsService(BaseService):
 
         if booking:
             raise ObjectBookedException
+
+    async def check_booking(self, user_id: int, booking_id: int):
+        booking = await self.db.bookings.get_one_or_none(user_id=user_id, id=booking_id)
+
+        if not booking:
+            raise BookingNotFoundException

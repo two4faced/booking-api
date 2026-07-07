@@ -9,6 +9,8 @@ from src.exceptions import (
     DateFromLaterThenOrEQDateToException,
     HotelNotFoundException,
     HotelNotFoundHTTPException,
+    BookingNotFoundException,
+    BookingNotFoundHTTPException,
 )
 from src.schemas.bookings import BookingsAddRequest
 from src.services.bookings import BookingsService
@@ -44,3 +46,13 @@ async def book_room(user_id: UserIdDep, booking_data: BookingsAddRequest, db: DB
 
     await db.commit()
     return {'status': 'OK', 'data': booking}
+
+
+@router.delete('/{booking_id}', summary='Отменить бронирование')
+async def cancel_booking(user_id: UserIdDep, booking_id: int, db: DBDep):
+    try:
+        await BookingsService(db).cancel_booking(user_id=user_id, booking_id=booking_id)
+    except BookingNotFoundException:
+        raise BookingNotFoundHTTPException
+
+    return {'status': 'OK'}

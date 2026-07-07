@@ -4,8 +4,10 @@ from pathlib import Path
 
 from fastapi import UploadFile
 
+from src.exceptions import WrongExtensionException
 from src.schemas.images import HotelImageAdd, RoomImageAdd
 from src.services.base import BaseService
+from src.services.hotels import HotelsService
 
 
 class ImagesService(BaseService):
@@ -15,6 +17,7 @@ class ImagesService(BaseService):
         image_path = directory / file.filename
 
         with open(image_path, 'wb+') as new_file:
+            self.check_extension(file)
             shutil.copyfileobj(file.file, new_file)
 
         new_image = HotelImageAdd(hotel_id=hotel_id, path=str(image_path))
@@ -29,6 +32,8 @@ class ImagesService(BaseService):
         os.makedirs(directory, exist_ok=True)
         image_path = directory / file.filename
 
+        self.check_extension(file)
+
         with open(image_path, 'wb+') as new_file:
             shutil.copyfileobj(file.file, new_file)
 
@@ -36,6 +41,12 @@ class ImagesService(BaseService):
         await self.db.rooms_images.add(new_image)
         await self.db.commit()
 
-
     async def get_all_room_images(self, room_id: int):
         return await self.db.rooms_images.get_all(room_id=room_id)
+
+    @staticmethod
+    def check_extension(file: UploadFile):
+        allowed_extensions = {'.jpg', '.jpeg', '.png', '.webp'}
+        file_extension = Path(file.filename).suffix.lower()
+        if file_extension not in allowed_extensions:
+            raise WrongExtensionException

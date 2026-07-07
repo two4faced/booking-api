@@ -30,3 +30,8 @@ class User(BaseModel):
 
 class UserWithHashedPassword(User):
     hashed_password: str
+
+
+class UserPatch(BaseModel):
+    name: str | None = Field(None, min_length=3)
+    email: EmailStr | None = Field(None)
