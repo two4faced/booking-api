@@ -15,7 +15,6 @@ from src.config import settings
 
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from starlette.middleware.sessions import SessionMiddleware
@@ -63,14 +62,5 @@ from fastapi.staticfiles import StaticFiles
 app.mount('/static', StaticFiles(directory='src/static'), name='static')
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
-    allow_credentials=True,
-    allow_methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allow_headers=['*'],
-    expose_headers=['*'],
-)
-
 if __name__ == '__main__':
-    uvicorn.run('__main__:app', reload=True)
+    uvicorn.run(app, host='0.0.0.0', reload=True)
